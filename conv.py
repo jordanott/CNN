@@ -29,11 +29,13 @@ class conv_layer():
 			for start_row in range(0,layer_output.shape[1],self.stride):
 				for start_col in range(0,layer_output.shape[2],self.stride):
 					layer_output[filter_num,start_row,start_col] = np.sum(self.filters[filter_num]*
+						# layer_input[dim][...] if handeling multi dim inputs
 						layer_input[start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim])
 		
 		return layer_output
 
 	def backprop(self):
+		# TODO
 		pass
 
 
@@ -43,14 +45,25 @@ class max_pool_layer():
 		self.stride = stride
 
 	def max_pool(self,layer_input):
+		# calculate dimension of layer output
 		out_dim1 = (layer_input.shape[1]-self.pool_size)/self.stride + 1
 		out_dim2 = (layer_input.shape[2]-self.pool_size)/self.stride + 1
-		print out_dim1
+
 		# output of conv layer is same dimension as input with a depth of the number of filters
 		layer_output = np.zeros((layer_input.shape[0],out_dim1,out_dim2))
-
-		print layer_output.shape
-
+		
+		# for each dimension in the input
+		for dim in range(layer_input.shape[0]):
+			# for each row
+			for start_row in range(0,layer_output.shape[1],self.stride):
+				# for each column
+				for start_col in range(0,layer_output.shape[2],self.stride):
+					# max pool operation over pool window
+					layer_output[dim,start_row,start_col] = np.max(layer_input[dim][start_row:start_row+self.pool_size,start_col:start_col+self.pool_size])
+		return layer_output
+	def backprop():
+		# TODO
+		pass
 x = x.reshape((1,28,28))
 
 # 3x3 filter, filter one, stride one
@@ -63,34 +76,4 @@ out2 = conv2.conv(out1)
 print out2.shape
 
 pool1 = max_pool_layer(2,1)
-pool1.max_pool(out2)
-
-# x = np.array(
-# [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-# [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]])
+print pool1.max_pool(out2)
