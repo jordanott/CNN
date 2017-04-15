@@ -37,8 +37,8 @@ class conv_layer():
 		for filter_num in range(self.num_filters): 
 			for start_row in range(0,layer_output.shape[1],self.stride):
 				for start_col in range(0,layer_output.shape[2],self.stride):
+
 					layer_output[filter_num,start_row,start_col] = np.sum(self.filters[filter_num]*
-						# layer_input[dim][...] if handeling multi dim inputs
 						layer_input[start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim])
 		return self.activation(layer_output)
 
@@ -88,6 +88,7 @@ class max_pool_layer():
 	def __init__(self,pool_size,stride):
 		self.pool_size = pool_size
 		self.stride = stride
+		self.backpool = None
 
 	def max_pool(self,layer_input):
 		# calculate dimension of layer output
@@ -96,19 +97,36 @@ class max_pool_layer():
 
 		# output of conv layer is same dimension as input with a depth of the number of filters
 		layer_output = np.zeros((layer_input.shape[0],out_dim1,out_dim2))
-		
+		self.backpool = np.zeros(layer_input.shape)
+		print self.backpool[0].shape
 		# for each dimension in the input
 		for dim in range(layer_input.shape[0]):
 			# for each row
-			for start_row in range(0,layer_output.shape[1],self.stride):
+			for start_row in range(0,layer_input.shape[1]-self.pool_size+1,self.stride):
 				# for each column
-				for start_col in range(0,layer_output.shape[2],self.stride):
+				for start_col in range(0,layer_input.shape[2]-self.pool_size+1,self.stride):
+					index = np.argmax(layer_input[dim][start_row:start_row+self.pool_size,start_col:start_col+self.pool_size])
+					
+
+					self.backpool[dim,start_row+(index//self.pool_size),start_col+(index%self.pool_size)] = 1
 					# max pool operation over pool window
 					layer_output[dim,start_row,start_col] = np.max(layer_input[dim][start_row:start_row+self.pool_size,start_col:start_col+self.pool_size])
+		
 		return layer_output
-	def backprop():
-		# TODO
-		pass
+	def backprop(self,gradient):
+		delta = np.zeros(self.backpool.shape)
+
+		for dim in range(gradient.shape[0]):
+			# for each row
+			for start_row in range(gradient.shape[1]):
+				# for each column
+				for start_col in range(gradient.shape[2]):
+					delta[dim,start_row*self.stride:start_row*self.stride + self.pool_size,
+					start_col*self.stride:start_col*self.stride + self.pool_size] += gradient[dim,start_row,start_col] * self.backpool[dim,
+					start_row*self.stride:start_row*self.stride + self.pool_size,
+					start_col*self.stride:start_col*self.stride + self.pool_size]
+					
+		return delta
 
 
 x = np.random.rand(28,28)
@@ -122,13 +140,18 @@ pool1 = max_pool_layer(2,1)
 fc1 = fully_connected_layer(729,10)
 
 
-out1 = conv1.conv(x)
+forward_conv = conv1.conv(x)
 
-pool_out_1 = pool1.max_pool(out1).reshape((1,-1))
+forward_pool = pool1.max_pool(forward_conv).reshape((1,-1))
 
-fc_out_1 = fc1.forward(pool_out_1)
+forward_fc = fc1.forward(forward_pool)
 
-print fc1.backprop(np.array([[1,1,1,1,1,1,1,1,1,1]])).shape
+
+fc_back = fc1.backprop(np.array([[1,1,1,1,1,1,1,1,1,1]]))
+
+fc_back = fc_back.reshape((1,27,27))
+
+pool_back = pool1.backprop(fc_back)
 
 
 
