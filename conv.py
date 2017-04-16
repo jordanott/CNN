@@ -1,22 +1,36 @@
-import numpy as np
+'''
+Author: Jordan Ott
+Implementation of convolutional neural network
+'''
 
-x = np.random.normal(size=(28,28))
+import numpy as np
 
 learning_rate = 10
 def relu(layer_input):
-		return np.maximum(layer_input,0)
+	return np.maximum(layer_input,0)
 def d_relu(x):
     return 1. * (x > 0)
 
 class conv_layer():
-
 	def __init__(self,filter_dim,num_filters,stride):
+		# Ex: filter_dim = 3 => 3x3 filter
 		self.filter_dim = filter_dim
+		# How many filters in layer
 		self.num_filters = num_filters
+		# stride amount
 		self.stride = stride
+		# initialize filters 
 		self.filters = self.init_filters()
+		# activation function
 		self.activation = relu
+		# derivative of activation function for backprop
 		self.backtivation = d_relu
+		# output of sliding filter through feature map
+		self.layer_product = None
+		# derivative of loss with respect to weights
+		self.filter_updates = None
+		# input of layer
+		self.layer_input_padded = None
 
 	def init_filters(self):
 		return np.random.normal(size=(self.num_filters,self.filter_dim,self.filter_dim))
@@ -26,35 +40,54 @@ class conv_layer():
 		return np.lib.pad(layer_input, (1,1), 'constant', constant_values=(0))
 
 	def conv(self,layer_input):
-
+		self.filter_updates = np.zeros((self.num_filters,self.filter_dim,self.filter_dim))
 		# output of conv layer is same dimension as input with a depth of the number of filters
 		layer_output = np.zeros((self.num_filters,layer_input.shape[1],layer_input.shape[2]))
 
 		# pad each dimension of input with zeros
+		self.layer_input_padded = np.zeros((layer_input.shape[0],layer_input.shape[1]+2,layer_input.shape[2]+2))
+
 		for dim in range(layer_input.shape[0]):
-			layer_input = self.add_padding(layer_input[dim])
+			self.layer_input_padded[dim] = self.add_padding(layer_input[dim])
 
 		for filter_num in range(self.num_filters): 
 			for start_row in range(0,layer_output.shape[1],self.stride):
 				for start_col in range(0,layer_output.shape[2],self.stride):
 
 					layer_output[filter_num,start_row,start_col] = np.sum(self.filters[filter_num]*
-						layer_input[start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim])
+						self.layer_input_padded[filter_num,start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim])
+		self.layer_product = layer_output
 		return self.activation(layer_output)
 
-	def backprop(self):
-		# TODO
-		pass
+	def backprop(self,gradient):
+		gradient = self.backtivation(self.layer_product) * gradient
+		
+		for dim in range(self.num_filters):
+			# for each row
+			for start_row in range(self.filter_dim):
+				# for each column
+				for start_col in range(self.filter_dim):
+					self.filter_updates[dim] += gradient[dim,start_row,start_col] * self.layer_input_padded[dim,
+					start_row*self.stride:start_row*self.stride + self.filter_dim,
+					start_col*self.stride:start_col*self.stride + self.filter_dim]
+					
+					# TODO 
+					# dLdw = ...
+		self.filters += -learning_rate*self.filter_updates
+
+		return 
 
 class fully_connected_layer():
 	def __init__(self,previous_num_neurons,num_neurons):
+		# number of neurons for fc layer
 		self.num_neurons = num_neurons
+		# number of neurons that feed fc layer
 		self.previous_num_neurons = previous_num_neurons
-
+		# initialize layer weights 
 		self.weights = self.init_weights()
-
+		# activation function
 		self.activation = relu
-		# derivative of relu
+		# derivative of relu for backprop
 		self.backtivation = d_relu
 		# layer_input = activation of previous layer
 		self.layer_input = None
@@ -98,7 +131,6 @@ class max_pool_layer():
 		# output of conv layer is same dimension as input with a depth of the number of filters
 		layer_output = np.zeros((layer_input.shape[0],out_dim1,out_dim2))
 		self.backpool = np.zeros(layer_input.shape)
-		print self.backpool[0].shape
 		# for each dimension in the input
 		for dim in range(layer_input.shape[0]):
 			# for each row
@@ -153,7 +185,9 @@ fc_back = fc_back.reshape((1,27,27))
 
 pool_back = pool1.backprop(fc_back)
 
+print "Backprop from max pool layer", pool_back.shape
 
+conv1.backprop(pool_back)
 
 
 
