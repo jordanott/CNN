@@ -5,8 +5,8 @@ from layer_activations import *
 import numpy as np
 
 class cnn():
-	def __init__(self,input_dimension):
-		self.input_dimension = input_dimension
+	def __init__(self,learning_rate=.001):
+		self.learning_rate = learning_rate
 		self.layers = []
 		# layer types
 		self.layer_types = {
@@ -23,7 +23,8 @@ class cnn():
 		'pool_size':pool_size,
 		'filter_dim':filter_dim,
 		'num_neurons':num_neurons,
-		'num_filters':num_filters
+		'num_filters':num_filters,
+		'learning_rate':self.learning_rate
 		}
 		# set layer activation function
 		layer_opts['activation'] = activation_functions[activation][0]
@@ -39,25 +40,42 @@ class cnn():
 		for layer in self.layers:
 			data = layer.forward(data)
 
-		return self.softmax(data)
+		return data
 
 	def backward(self,gradient):
 		for layer in reversed(self.layers):
+			print layer.__class__
+			print gradient
 			gradient = layer.backprop(gradient)
 
-
-# # 3x3 filter, filter one, stride one
-# conv1 = conv_layer(3,1,1)
-# # 2x2 max pool, stride one
-# pool1 = max_pool_layer(2,1)
-# # 10 fully connected neurons
-# fc1 = fully_connected_layer(729,10)
-
-cnn = cnn(28)
+cnn = cnn(.001)
 cnn.add_layer('conv',stride=1,num_filters=1,filter_dim=3,padding=1,activation='relu')
 cnn.add_layer('max_pool',stride=1,pool_size=2)
 cnn.add_layer('fc',num_neurons=10,activation='relu')
 
-data = np.arange(16).reshape((1,4,4))
-soft = cnn.forward(data)
-cnn.backward(soft)
+import cPickle, gzip
+# Load the dataset
+f = gzip.open('mnist.pkl.gz', 'rb')
+train_set, valid_set, test_set = cPickle.load(f)
+f.close()
+
+correct = 0
+# training
+for i in range(0,len(train_set[0])):
+	data = train_set[0][i].reshape((1,28,28))
+	actual = np.zeros((1,10))
+	actual[0,train_set[1][i]] = 1
+	
+	# backprop through network
+	predictions = cnn.forward(data)
+	
+	loss = .5*np.sum(actual - predictions)**2
+	print loss
+	gradient = -(actual - predictions)
+	
+	prediction = np.argmax(predictions)
+	print prediction
+	if actual[0,prediction]:
+		correct += 1
+	print "Accuracy", float(correct/float(i+1))
+	cnn.backward(gradient)

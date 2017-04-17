@@ -9,14 +9,16 @@ class conv_layer():
 		self.num_filters = layer_opts['num_filters']
 		# stride amount
 		self.stride = layer_opts['stride']
-		# initialize filters 
-		self.filters = self.init_filters()
+		# learning rate for weight updates 
+		self.learning_rate = layer_opts['learning_rate']
 		# activation function
 		self.activation = layer_opts['activation']
 		# derivative of activation function for backprop
 		self.backtivation = layer_opts['backtivation']
 		# amount of padding for input
 		self.padding = layer_opts['padding']
+		# initialize filters 
+		self.filters = self.init_filters()
 		# output of sliding filter through feature map
 		self.layer_product = None
 		# derivative of loss with respect to weights
@@ -68,6 +70,6 @@ class conv_layer():
 					self.dLdw[dim,start_row*self.stride:start_row*self.stride + self.filter_dim,
 					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[dim,start_row,start_col] * self.filters[dim,start_row,start_col]
 
-		self.filters += -learning_rate*self.filter_updates
+		self.filters += -self.learning_rate*self.filter_updates
 		
 		return self.dLdw[:,self.padding:self.dLdw.shape[1]-2*self.padding +1,self.padding:self.dLdw.shape[2]-2*self.padding+1]

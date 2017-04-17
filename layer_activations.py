@@ -1,7 +1,5 @@
 import numpy as np
 
-
-
 def relu(layer_input):
 	return np.maximum(layer_input,0)
 def d_relu(x):
