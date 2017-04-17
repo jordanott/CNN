@@ -27,6 +27,7 @@ class conv_layer():
 		self.layer_input_padded = None
 
 	def init_filters(self):
+		# initialize filters from normal distribution
 		return np.random.normal(size=(self.num_filters,self.filter_dim,self.filter_dim))
 
 	def add_padding(self,layer_input):
