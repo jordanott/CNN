@@ -10,18 +10,26 @@ class fully_connected_layer():
 		self.activation = layer_opts['activation']
 		# derivative of relu for backprop
 		self.backtivation = layer_opts['backtivation']
-		# learning rate for weight updates 
+		# learning rate for weight updates
 		self.learning_rate = layer_opts['learning_rate']
+		# set shape of incoming tensor
+		self.incoming_shape = layer_opts['incoming_shape']
+		# set shape of outgoing tensor
+		self.output_shape = self.get_output_shape()
 		# layer_input = activation of previous layer
 		self.layer_input = None
 		# dot(layer_input,weights)
 		self.layer_product = None
-		# layer weights 
+		# layer weights
 		self.weights = None
 		# derivative of loss with respect to weights
 		self.dLdw = None
 		# original dimension of input
 		self.original_dim = None
+
+	def get_output_shape(self):
+		# output shape is 
+		return (1,self.num_neurons)
 
 	def init_weights(self,previous):
 		# initializing weights
@@ -32,12 +40,11 @@ class fully_connected_layer():
 		# save original dimension of input
 		self.original_dim = layer_input.shape
 		# flatten layer input
-		self.layer_input = layer_input.flatten()
-		self.layer_input = self.layer_input.reshape((1,self.layer_input.shape[0]))
+		self.layer_input = layer_input.flatten().reshape(1,-1)
 		# if weights haven't been initialized
 		if self.weights == None:
 			# initialize weights
-			self.weights = self.init_weights(self.layer_input.shape[1])		
+			self.weights = self.init_weights(self.layer_input.shape[1])
 
 		self.layer_product = np.dot(self.layer_input,self.weights)
 		# return output with activation on layer
