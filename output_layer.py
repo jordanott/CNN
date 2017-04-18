@@ -10,6 +10,7 @@ class output_layer():
 
 	def softmax(self,z):
 		# softmax function
+		z = np.minimum(500,z)
 		return np.exp(z) / np.sum(np.exp(z))
 
 	def d_softmax(self,y):

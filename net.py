@@ -5,7 +5,7 @@ from max_pool_layer import max_pool_layer
 from fully_connected_layer import fully_connected_layer
 
 import numpy as np
-
+import cv2
 class net():
 	def __init__(self,learning_rate=.001):
 		self.learning_rate = learning_rate
@@ -17,6 +17,7 @@ class net():
 		'max_pool':max_pool_layer,
 		'output':output_layer
 		}
+		self.counter = 0
 
 	def add_layer(self,layer_type,pool_size=2,stride=1,num_neurons=0,filter_dim=3,num_filters=1,padding=1,activation='relu',output_function='softmax'):
 		# layer options
@@ -39,6 +40,19 @@ class net():
 	def forward(self,data):
 		for layer in self.layers:
 			data = layer.forward(data)
+
+			if layer.__class__ == conv_layer and self.counter %1000 == 0:
+				
+				
+				cv2.startWindowThread()
+
+				cv2.imshow("data",data.reshape((28,28, 1)))
+				cv2.waitKey(0) 
+				#cv2.imwrite("data" + str(self.counter) + ".jpg",data.reshape((28,28, 1)))
+
+				cv2.destroyAllWindows()
+				#x = raw_input("enter")
+			self.counter+=1
 		return data
 
 	def backward(self,gradient):

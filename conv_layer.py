@@ -48,10 +48,11 @@ class conv_layer():
 		for filter_num in range(self.num_filters): 
 			for start_row in range(0,layer_output.shape[1],self.stride):
 				for start_col in range(0,layer_output.shape[2],self.stride):
-
-					layer_output[filter_num,start_row,start_col] = np.sum(self.filters[filter_num]*
-						self.layer_input_padded[filter_num,start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim])
+					print self.layer_input_padded[filter_num,start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim].shape
+					layer_output[filter_num,start_row,start_col] = np.sum(self.filters[filter_num] *
+						self.layer_input_padded[start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim])
 		self.layer_product = layer_output
+		
 		return self.activation(layer_output)
 
 	def backprop(self,gradient):
