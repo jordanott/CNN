@@ -1,4 +1,2 @@
-# CNN
-Implementing a convolutional neural network in python
+# Neural Network Library  
 
-![AltText](http://cs231n.github.io/assets/cnn/cnn.jpeg)
