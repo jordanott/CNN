@@ -11,7 +11,7 @@ class max_pool_layer():
 		self.incoming_shape = layer_opts['incoming_shape']
 		# set shape of outgoing tensor
 		self.output_shape = self.get_output_shape()
-		#
+		# 
 		self.backpool = None
 
 	def get_output_shape(self):
@@ -30,30 +30,32 @@ class max_pool_layer():
 		layer_output = np.zeros(self.output_shape)
 		self.backpool = np.zeros(layer_input.shape)
 		# for each dimension in the input
-		for dim in range(layer_input.shape[0]):
-			# for each row
-			for start_row in range(0,layer_input.shape[1]-self.pool_size+1,self.stride):
-				# for each column
-				for start_col in range(0,layer_input.shape[2]-self.pool_size+1,self.stride):
-					index = np.argmax(layer_input[dim][start_row:start_row+self.pool_size,start_col:start_col+self.pool_size])
+		
+		# for each row
+		for start_row in range(0,layer_input.shape[0]-self.pool_size+1,self.stride):
+			# for each column
+			for start_col in range(0,layer_input.shape[1]-self.pool_size+1,self.stride):
+				# 
+				for dim in range(layer_input.shape[2]):
+					# get index where max element occurs
+					index = np.argmax(layer_input[start_row:start_row+self.pool_size,start_col:start_col+self.pool_size,dim])
 
-
-					self.backpool[dim,start_row+(index//self.pool_size),start_col+(index%self.pool_size)] = 1
+					self.backpool[start_row+(index//self.pool_size),start_col+(index%self.pool_size),dim] = 1
 					# max pool operation over pool window
-					layer_output[dim,start_row,start_col] = np.max(layer_input[dim][start_row:start_row+self.pool_size,start_col:start_col+self.pool_size])
+					layer_output[start_row,start_col,dim] = np.max(layer_input[start_row:start_row+self.pool_size,start_col:start_col+self.pool_size,dim])
 		print "max pool output", layer_output.shape
 		return layer_output
 	def backprop(self,gradient):
 		delta = np.zeros(self.backpool.shape)
 
-		for dim in range(gradient.shape[0]):
+		for start_row in range(gradient.shape[0]):
 			# for each row
-			for start_row in range(gradient.shape[1]):
+			for start_col in range(gradient.shape[1]):
 				# for each column
-				for start_col in range(gradient.shape[2]):
-					delta[dim,start_row*self.stride:start_row*self.stride + self.pool_size,
-					start_col*self.stride:start_col*self.stride + self.pool_size] += gradient[dim,start_row,start_col] * self.backpool[dim,
+				for dim in range(gradient.shape[2]):
+					delta[start_row*self.stride:start_row*self.stride + self.pool_size,
+					start_col*self.stride:start_col*self.stride + self.pool_size,dim] += gradient[start_row,start_col,dim] * self.backpool[
 					start_row*self.stride:start_row*self.stride + self.pool_size,
-					start_col*self.stride:start_col*self.stride + self.pool_size]
+					start_col*self.stride:start_col*self.stride + self.pool_size,dim]
 
 		return delta

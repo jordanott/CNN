@@ -44,12 +44,10 @@ class conv_layer():
 		return np.random.normal(size=(self.num_filters,self.filter_dim,self.filter_dim,self.incoming_shape[-1]))
 
 	def add_padding(self,layer_input):
-		print "printing layer input shape" , layer_input.shape
 		# padd image with zeros
 		padded = np.zeros((layer_input.shape[0]+ 2*self.padding,layer_input.shape[1]+2*self.padding,layer_input.shape[2]))
 		padded[self.padding:self.padding+layer_input.shape[0],self.padding:self.padding+layer_input.shape[0]] = layer_input
-		print "padded"
-		print padded.shape
+		
 		return padded
 	
 	def forward(self,layer_input):
@@ -57,7 +55,7 @@ class conv_layer():
 		self.filter_updates = np.zeros(self.filters.shape)
 		# output of conv layer is same dimension as input with a depth of the number of filters
 		layer_output = np.zeros(self.output_shape)
-		print "output shape", self.output_shape
+		
 		if self.padding > 0:	
 			# pad input with zeros
 			self.layer_input_padded = self.add_padding(layer_input)
@@ -77,22 +75,24 @@ class conv_layer():
 		return self.activation(layer_output)
 
 	def backprop(self,gradient):
+		print "incoming", self.incoming_shape
+		print "outgoing", self.output_shape
+		print "gradient", gradient.shape
 		gradient = self.backtivation(self.layer_product) * gradient
 		self.dLdw = np.zeros(self.layer_input_padded.shape)
-
-		print self.layer_input_padded.shape
+		
 		for dim in range(self.num_filters):
 			# for each row
 			for start_row in range(self.filter_dim):
 				# for each column
 				for start_col in range(self.filter_dim):
-					self.filter_updates[dim] += gradient[dim,start_row,start_col] * self.layer_input_padded[
-					start_row*self.stride:start_row*self.stride + self.filter_dim,
-					start_col*self.stride:start_col*self.stride + self.filter_dim]
 
-					# TODO
-					self.dLdw[dim,start_row*self.stride:start_row*self.stride + self.filter_dim,
-					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[start_row,start_col] * self.filters[dim,start_row,start_col]
+					self.filter_updates[dim] += gradient[start_row,start_col,dim] * self.layer_input_padded[
+					start_row*self.stride:start_row*self.stride + self.filter_dim,
+					start_col*self.stride:start_col*self.stride + self.filter_dim,dim]
+					
+					self.dLdw[start_row*self.stride:start_row*self.stride + self.filter_dim,
+					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[start_row,start_col] * self.filters[dim]
 
 		self.filters += -self.learning_rate*self.filter_updates
 
