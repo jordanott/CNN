@@ -8,9 +8,15 @@ class output_layer():
 		self.forward = functions[layer_opts['output_function']][0]
 		self.backprop = functions[layer_opts['output_function']][1]
 
+		# set shape of incoming data
+		self.incoming_shape = layer_opts['incoming_shape']
+		# set output shape of layer
+		self.output_shape = self.incoming_shape
+
 	def softmax(self,z):
-		# softmax function
+		# clamp gradient to avoid explosion
 		z = np.minimum(500,z)
+		# softmax function
 		return np.exp(z) / np.sum(np.exp(z))
 
 	def d_softmax(self,y):

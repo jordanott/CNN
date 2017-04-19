@@ -37,30 +37,33 @@ class conv_layer():
 			print "WARNING: Padding need..."
 		out = (2*self.padding + incoming_width_height - self.filter_dim)/self.stride + 1
 		# determine the dimensions of shape produced by layer
-		return (self.num_filters,out,out)
+		return (out,out,self.num_filters)
 
 	def init_filters(self):
 		# initialize filters from normal distribution => filter height x filter width x depth of incoming shape
 		return np.random.normal(size=(self.num_filters,self.filter_dim,self.filter_dim,self.incoming_shape[-1]))
 
 	def add_padding(self,layer_input):
+		print "printing layer input shape" , layer_input.shape
 		# padd image with zeros
-
-		# TODO fix padding
-
-		return np.lib.pad(layer_input, (self.padding,self.padding), 'constant', constant_values=(0))
-
+		padded = np.zeros((layer_input.shape[0]+ 2*self.padding,layer_input.shape[1]+2*self.padding,layer_input.shape[2]))
+		padded[self.padding:self.padding+layer_input.shape[0],self.padding:self.padding+layer_input.shape[0]] = layer_input
+		print "padded"
+		print padded.shape
+		return padded
+	
 	def forward(self,layer_input):
-
-		self.filter_updates = np.zeros((self.num_filters,self.filter_dim,self.filter_dim))
+		# initialize filter update matrix
+		self.filter_updates = np.zeros(self.filters.shape)
 		# output of conv layer is same dimension as input with a depth of the number of filters
-		layer_output = np.zeros((self.num_filters,layer_input.shape[1],layer_input.shape[2]))
-
-		# pad each dimension of input with zeros
-		self.layer_input_padded = np.zeros((layer_input.shape[0],layer_input.shape[1]+2,layer_input.shape[2]+2))
-		print self.layer_input_padded.shape
-		for dim in range(layer_input.shape[0]):
-			self.layer_input_padded[dim] = self.add_padding(layer_input[dim])
+		layer_output = np.zeros(self.output_shape)
+		print "output shape", self.output_shape
+		if self.padding > 0:	
+			# pad input with zeros
+			self.layer_input_padded = self.add_padding(layer_input)
+		else:
+			# if no padding
+			self.layer_input_padded = layer_input
 
 		for filter_num in range(self.num_filters):
 			for start_row in range(0,layer_output.shape[1],self.stride):
@@ -77,18 +80,19 @@ class conv_layer():
 		gradient = self.backtivation(self.layer_product) * gradient
 		self.dLdw = np.zeros(self.layer_input_padded.shape)
 
+		print self.layer_input_padded.shape
 		for dim in range(self.num_filters):
 			# for each row
 			for start_row in range(self.filter_dim):
 				# for each column
 				for start_col in range(self.filter_dim):
-					self.filter_updates[dim] += gradient[dim,start_row,start_col] * self.layer_input_padded[dim,
+					self.filter_updates[dim] += gradient[dim,start_row,start_col] * self.layer_input_padded[
 					start_row*self.stride:start_row*self.stride + self.filter_dim,
 					start_col*self.stride:start_col*self.stride + self.filter_dim]
 
 					# TODO
 					self.dLdw[dim,start_row*self.stride:start_row*self.stride + self.filter_dim,
-					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[dim,start_row,start_col] * self.filters[dim,start_row,start_col]
+					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[start_row,start_col] * self.filters[dim,start_row,start_col]
 
 		self.filters += -self.learning_rate*self.filter_updates
 

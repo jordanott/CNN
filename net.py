@@ -41,9 +41,11 @@ class net():
 		if self.layers:
 			# set depth of filter based off depth of incoming shape
 			layer_opts['incoming_shape'] = self.layers[-1].output_shape
-		print "Incoming shape:",layer_opts['incoming_shape'],layer_type
+		print layer_type,"********* Incoming shape:",layer_opts['incoming_shape']
 		# add new layer
 		self.layers.append(self.layer_types[layer_type](layer_opts))
+		#print layer_type,"********* Outgoing shape:",self.layers[-1].output_shape
+
 
 	def forward(self,data):
 		for layer in self.layers:

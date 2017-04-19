@@ -21,15 +21,13 @@ class max_pool_layer():
 			print "WARNING: Padding need on pool..."
 		out = (incoming_width_height - self.pool_size)/self.stride + 1
 		# determine the dimensions of shape produced by layer
-		return (self.incoming_shape[0],out,out)
+		return (out,out,self.incoming_shape[-1])
 
 	def forward(self,layer_input):
-		# calculate dimension of layer output
-		out_dim1 = (layer_input.shape[1]-self.pool_size)/self.stride + 1
-		out_dim2 = (layer_input.shape[2]-self.pool_size)/self.stride + 1
+		print "max pool input", layer_input.shape
 
 		# output of conv layer is same dimension as input with a depth of the number of filters
-		layer_output = np.zeros((layer_input.shape[0],out_dim1,out_dim2))
+		layer_output = np.zeros(self.output_shape)
 		self.backpool = np.zeros(layer_input.shape)
 		# for each dimension in the input
 		for dim in range(layer_input.shape[0]):
@@ -43,7 +41,7 @@ class max_pool_layer():
 					self.backpool[dim,start_row+(index//self.pool_size),start_col+(index%self.pool_size)] = 1
 					# max pool operation over pool window
 					layer_output[dim,start_row,start_col] = np.max(layer_input[dim][start_row:start_row+self.pool_size,start_col:start_col+self.pool_size])
-
+		print "max pool output", layer_output.shape
 		return layer_output
 	def backprop(self,gradient):
 		delta = np.zeros(self.backpool.shape)
