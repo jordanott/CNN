@@ -24,7 +24,7 @@ class max_pool_layer():
 		return (out,out,self.incoming_shape[-1])
 
 	def forward(self,layer_input):
-		print "max pool input", layer_input.shape
+		#print "max pool input", layer_input.shape
 
 		# output of conv layer is same dimension as input with a depth of the number of filters
 		layer_output = np.zeros(self.output_shape)
@@ -43,7 +43,7 @@ class max_pool_layer():
 					self.backpool[start_row+(index//self.pool_size),start_col+(index%self.pool_size),dim] = 1
 					# max pool operation over pool window
 					layer_output[start_row,start_col,dim] = np.max(layer_input[start_row:start_row+self.pool_size,start_col:start_col+self.pool_size,dim])
-		print "max pool output", layer_output.shape
+		#print "max pool output", layer_output.shape
 		return layer_output
 	def backprop(self,gradient):
 		delta = np.zeros(self.backpool.shape)

@@ -6,8 +6,8 @@ cnn = net(.001)
 cnn.add_layer('input',shape=(28,28,1))
 cnn.add_layer('conv',stride=1,num_filters=2,filter_dim=3,padding=1,activation='relu')
 cnn.add_layer('max_pool',stride=1,pool_size=2)
-cnn.add_layer('conv',stride=1,num_filters=2,filter_dim=3,padding=1,activation='relu')
-cnn.add_layer('max_pool',stride=1,pool_size=2)
+# cnn.add_layer('conv',stride=1,num_filters=2,filter_dim=3,padding=1,activation='relu')
+# cnn.add_layer('max_pool',stride=1,pool_size=2)
 cnn.add_layer('fc',num_neurons=10,activation='relu')
 cnn.add_layer('output',output_function='softmax')
 
@@ -18,6 +18,10 @@ train_set, valid_set, test_set = cPickle.load(f)
 f.close()
 
 correct = 0
+# data = np.arange(16).reshape((4,4,1))
+
+# predictions = cnn.forward(data)
+# print predictions
 # training
 for i in range(0,len(train_set[0])):
 	data = train_set[0][i].reshape((28,28,1))
