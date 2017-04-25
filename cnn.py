@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, 'net/')
+
 from net import net
 import numpy as np
 
@@ -14,7 +17,7 @@ cnn.add_layer('output',num_neurons=10,activation='softmax')
 
 import cPickle, gzip
 # Load the dataset
-f = gzip.open('mnist.pkl.gz', 'rb')
+f = gzip.open('data/mnist.pkl.gz', 'rb')
 train_set, valid_set, test_set = cPickle.load(f)
 f.close()
 

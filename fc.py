@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, 'net/')
+
 from net import net
 import numpy as np
 
@@ -27,7 +30,7 @@ while True:
 		gradient = fc.get_gradient(predictions,y[i])
 		loss = fc.get_cost(predictions,y[i])
 		# print "gradient",gradient
-		print "cost", loss
+		#print "cost", loss
 		fc.backward(gradient)
 		if counter % 200 == 0:
 			# print predictions

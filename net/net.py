@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, 'layers/')
+
 from layer_activations import *
 from conv_layer import conv_layer
 from input_layer import input_layer
