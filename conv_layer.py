@@ -87,8 +87,8 @@ class conv_layer():
 		return reg
 		
 	def backprop(self,gradient):
-		gradient = self.backtivation(gradient) * gradient
-		self.dLdw = np.zeros(self.layer_input_padded.shape,dtype=np.float64)
+		gradient = self.backtivation(self.layer_product) * gradient
+		dLdw = np.zeros(self.layer_input_padded.shape,dtype=np.float64)
 		
 		for start_row in range(self.filter_dim):
 			for start_col in range(self.filter_dim):
@@ -97,10 +97,10 @@ class conv_layer():
 					start_row*self.stride:start_row*self.stride + self.filter_dim,
 					start_col*self.stride:start_col*self.stride + self.filter_dim]
 					
-					self.dLdw[start_row*self.stride:start_row*self.stride + self.filter_dim,
+					dLdw[start_row*self.stride:start_row*self.stride + self.filter_dim,
 					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[start_row,start_col,dim] * self.filters[dim]
 
 		for filter_num in range(self.num_filters):
 			self.filters[filter_num] += -(self.learning_rate*self.filter_updates[filter_num] + 1e-3 * self.filters[filter_num])
 
-		return self.dLdw[:,self.padding:self.dLdw.shape[1]-2*self.padding +1,self.padding:self.dLdw.shape[2]-2*self.padding+1]
+		return dLdw[:,self.padding:dLdw.shape[1]-2*self.padding +1,self.padding:dLdw.shape[2]-2*self.padding+1]

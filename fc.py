@@ -15,7 +15,7 @@ counter = 0
 accuracy = 0
 while True:
 	for i in range(0,len(x)):
-		predictions = fc.forward(x[i])[0]
+		predictions = fc.forward(x[i])
 		#print "predictions", predictions
 		#print predictions
 		index = np.argmax(predictions)
@@ -23,12 +23,11 @@ while True:
 		if y[i][index] == 1:
 			accuracy += 1
 
-		cost = -np.sum(y[i]*np.log(predictions))
-		predictions[0,np.argmax(y[i])] -= 1
-
-		gradient = predictions
+		
+		gradient = fc.get_gradient(predictions,y[i])
+		loss = fc.get_cost(predictions,y[i])
 		# print "gradient",gradient
-		print "cost", cost
+		print "cost", loss
 		fc.backward(gradient)
 		if counter % 200 == 0:
 			# print predictions

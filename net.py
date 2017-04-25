@@ -19,7 +19,8 @@ class net():
 		'max_pool':max_pool_layer,
 		'output':output_layer
 		}
-		self.counter = 0
+		# regularization loss for weights
+		self.l2 = 0
 
 	def add_layer(self,layer_type,shape=0,pool_size=2,stride=1,num_neurons=0,filter_dim=3,num_filters=1,padding=1,activation='relu',output_function='softmax'):
 		# layer options
@@ -48,12 +49,27 @@ class net():
 
 
 	def forward(self,data):
-		l2 = 0
 		for layer in self.layers:
 			data,reg = layer.forward(data)
-			l2 += reg
-		return data,l2
+			self.l2 += reg
+		predictions = data
+
+		return predictions
 
 	def backward(self,gradient):
 		for layer in reversed(self.layers):
 			gradient = layer.backprop(gradient)
+
+	def get_gradient(self,predictions,actual):
+		# return gradient 
+		predictions[0,np.argmax(actual)] -= 1
+		return predictions
+
+	def get_cost(self,predictions,actual):
+		#cost = -np.sum(actual*np.log(predictions))
+		# compute the loss: average cross-entropy loss and regularization
+		corect_logprobs = -np.log(predictions[0,np.argmax(actual)])
+		data_loss = np.sum(corect_logprobs)
+		reg_loss = 0.5*self.l2
+		loss = data_loss + reg_loss
+		return loss
