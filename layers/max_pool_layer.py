@@ -48,7 +48,7 @@ class max_pool_layer():
 					# max pool operation over pool window
 					layer_output[start_row,start_col,dim] = np.max(layer_input[start_row:start_row+self.pool_size,start_col:start_col+self.pool_size,dim])
 		#print "max pool output", layer_output.shape
-		return layer_output, self.l2()
+		return layer_output
 
 	def backprop(self,gradient):
 		delta = np.zeros(self.backpool.shape)

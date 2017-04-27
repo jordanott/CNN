@@ -7,7 +7,7 @@ class input_layer():
         self.output_shape = self.incoming_shape
         
     def forward(self,layer_input):
-    	return layer_input, self.l2()
+    	return layer_input
 
     def backprop(self,gradient):
     	pass

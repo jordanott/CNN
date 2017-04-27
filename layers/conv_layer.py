@@ -77,7 +77,7 @@ class conv_layer():
 
 		self.layer_product = layer_output
 
-		return self.activation(layer_output), self.l2()
+		return self.activation(layer_output)
 
 	def l2(self):
 		reg = 0

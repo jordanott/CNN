@@ -47,7 +47,7 @@ class fully_connected_layer():
 
 		self.layer_product = np.dot(self.layer_input,self.weights) + self.bias
 		# return output with activation on layer
-		return self.activation(self.layer_product),self.l2()
+		return self.activation(self.layer_product)
 
 	def l2(self):
 		#print self.weights
@@ -59,9 +59,12 @@ class fully_connected_layer():
 		dw = np.dot(self.layer_input.T,gradient)
 		# return derivative of loss with respect to layer input
 		delta = np.dot(gradient,self.weights.T)
+
+		db = np.sum(gradient,axis=0,keepdims=True)
 		# update weights: learning rate * derivative of loss with respect to weights
 		# weight regularization
 		dw += self.weights * 1e-3
 		self.weights += -self.learning_rate*dw 
+		self.bias += -self.learning_rate*db
 
 		return delta.reshape(self.incoming_shape)

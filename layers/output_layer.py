@@ -47,7 +47,7 @@ class output_layer():
 
 		self.layer_product = np.dot(self.layer_input,self.weights) + self.bias
 		# return output with activation on layer
-		return self.activation(self.layer_product),self.l2()
+		return self.activation(self.layer_product)
 
 	def l2(self):
 		#print self.weights

@@ -18,8 +18,6 @@ def d_sigmoid(x):
     return sigmoid(x)*(1-sigmoid(x))
 
 def softmax(x):
-	# clamp gradient to avoid explosion
-	x = np.minimum(10,x)
 	# softmax function
 	return np.exp(x) / np.sum(np.exp(x))
 
