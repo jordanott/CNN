@@ -44,10 +44,6 @@ class fully_connected_layer():
 		if self.weights == None:
 			# initialize weights
 			self.init_weights(self.layer_input.shape[1])
-		
-		if self.weights[0][0] < -1000:
-			print "PROBLEM"
-			print self.weights
 
 		self.layer_product = np.dot(self.layer_input,self.weights) + self.bias
 		# return output with activation on layer

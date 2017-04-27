@@ -35,7 +35,7 @@ class conv_layer():
 		incoming_width_height = self.incoming_shape[1]
 
 		if not ((2*self.padding + incoming_width_height - self.filter_dim)/float(self.stride)).is_integer():
-			print "WARNING: Padding need..."
+			print("WARNING: Padding need...")
 		out = (2*self.padding + incoming_width_height - self.filter_dim)/self.stride + 1
 		# determine the dimensions of shape produced by layer
 		return (out,out,self.num_filters)

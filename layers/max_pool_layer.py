@@ -18,7 +18,7 @@ class max_pool_layer():
 		# (n-f)/stride + 1 = dim
 		incoming_width_height = self.incoming_shape[1]
 		if not (( incoming_width_height - self.pool_size)/float(self.stride)).is_integer():
-			print "WARNING: Padding need on pool..."
+			print("WARNING: Padding need on pool...")
 		out = (incoming_width_height - self.pool_size)/self.stride + 1
 		# determine the dimensions of shape produced by layer
 		return (out,out,self.incoming_shape[-1])

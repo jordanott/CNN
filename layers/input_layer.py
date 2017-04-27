@@ -13,4 +13,4 @@ class input_layer():
     	pass
 
     def l2(self):
-		return 0
+        return 0

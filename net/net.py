@@ -54,7 +54,7 @@ class net():
 	def forward(self,data):
 		for layer in self.layers:
 			data,reg = layer.forward(data)
-			self.l2 += reg
+			
 		predictions = data
 
 		return predictions
@@ -63,10 +63,17 @@ class net():
 		for layer in reversed(self.layers):
 			gradient = layer.backprop(gradient)
 
-	def get_gradient(self,predictions,actual):
-		# return gradient 
+	def cross_entropy_gradient(self,predictions,actual):
+		# cross entropy gradients 
 		predictions[0,np.argmax(actual)] -= 1
 		return predictions
+
+	def mean_squared_error_gradient(self,predictions,actual):
+		# mean squared error gradients
+		derivative = (1 - predictions) * predictions
+		gradient = derivative * (predictions - actual)
+		return gradient
+
 
 	def get_cost(self,predictions,actual):
 		#cost = -np.sum(actual*np.log(predictions))
