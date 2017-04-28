@@ -67,6 +67,7 @@ class conv_layer():
 		else:
 			# if no padding
 			self.layer_input_padded = layer_input
+
 		for filter_num in range(self.num_filters):
 			for start_row in range(0,layer_output.shape[0],self.stride):
 				for start_col in range(0,layer_output.shape[1],self.stride):
@@ -83,22 +84,30 @@ class conv_layer():
 		reg = 0
 		for f in self.filters:
 			reg += np.sum(f*f)
-
 		return reg
 		
 	def backprop(self,gradient):
 		gradient = self.backtivation(self.layer_product) * gradient
 		dLdw = np.zeros(self.layer_input_padded.shape,dtype=np.float64)
 		
-		for start_row in range(self.filter_dim):
-			for start_col in range(self.filter_dim):
-				for dim in range(self.num_filters):	
+		for dim in range(self.num_filters):
+			for start_row in range(0,gradient.shape[0],self.stride):
+				for start_col in range(0,gradient.shape[1],self.stride):
+					dLdw[start_row:start_row+self.filter_dim, start_col:start_col+self.filter_dim] = gradient[start_row,start_col,dim]*self.filters[dim]
+
 					self.filter_updates[dim] += gradient[start_row,start_col,dim] * self.layer_input_padded[
-					start_row*self.stride:start_row*self.stride + self.filter_dim,
-					start_col*self.stride:start_col*self.stride + self.filter_dim]
+		 			start_row*self.stride:start_row*self.stride + self.filter_dim,
+		 			start_col*self.stride:start_col*self.stride + self.filter_dim]
+
+		# for start_row in range(self.filter_dim):
+		# 	for start_col in range(self.filter_dim):
+		# 		for dim in range(self.num_filters):	
+		# 			self.filter_updates[dim] += gradient[start_row,start_col,dim] * self.layer_input_padded[
+		# 			start_row*self.stride:start_row*self.stride + self.filter_dim,
+		# 			start_col*self.stride:start_col*self.stride + self.filter_dim]
 					
-					dLdw[start_row*self.stride:start_row*self.stride + self.filter_dim,
-					start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[start_row,start_col,dim] * self.filters[dim]
+		# 			dLdw[start_row*self.stride:start_row*self.stride + self.filter_dim,
+		# 			start_col*self.stride:start_col*self.stride + self.filter_dim] += gradient[start_row,start_col,dim] * self.filters[dim]
 
 		for filter_num in range(self.num_filters):
 			self.filters[filter_num] += -(self.learning_rate*self.filter_updates[filter_num] + 1e-3 * self.filters[filter_num])

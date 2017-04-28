@@ -8,8 +8,8 @@ cnn = net(.001)
 # height,width,depth
 cnn.add_layer('input',shape=(28,28,1))
 # cnn.add_layer('fc',num_neurons=32,activation='relu')
-#cnn.add_layer('conv',stride=1,num_filters=3,filter_dim=3,padding=1,activation='relu')
-# cnn.add_layer('max_pool',stride=1,pool_size=2)
+cnn.add_layer('conv',stride=1,num_filters=3,filter_dim=3,padding=1,activation='relu')
+cnn.add_layer('max_pool',stride=1,pool_size=2)
 # cnn.add_layer('conv',stride=1,num_filters=3,filter_dim=3,padding=1,activation='relu')
 # cnn.add_layer('max_pool',stride=1,pool_size=2)
 cnn.add_layer('output',num_neurons=10,activation='softmax')
@@ -36,7 +36,7 @@ for i in range(0,len(train_set[0])):
 	#print "PREDICTIONS:",predictions
 	prediction = np.argmax(predictions)
 
-	gradient = cnn.get_gradient(predictions,target)
+	gradient = cnn.cross_entropy_gradient(predictions,target)
 	# TODO: fix loss
 	# loss += cnn.get_cost(predictions,target)		
 	cnn.backward(gradient)
