@@ -1,6 +1,10 @@
+
 import numpy as np
+
+import pycuda.driver as cuda
 import pycuda.autoinit
-import pycuda.driver as drv
+from pycuda.compiler import SourceModule
+
 from pycuda.compiler import SourceModule
 from layer_activations import *
 
@@ -29,21 +33,21 @@ class fully_connected_layer():
 		self.bias = None
 
 		# load cuda kernel
-		mod = SourceModule(open("kernels.cu", "r").read())
+		mod = SourceModule(open("/home/jordan/Desktop/Neural-Network-Library/layers/cuda_kernels/kernels.cu", "r").read())
 
 		# get function
 		self.matmul = mod.get_function("matmul")
 
 	def get_output_shape(self):
-		# output shape is 
+		# output shape is
 		return (1,self.num_neurons)
 
 	def init_weights(self,previous):
 		# initializing weights
 		self.weights = 0.01*np.random.randn(previous,self.num_neurons) #scale=2/float(previous)
-		self.bias = np.zeros((1,self.num_neurons))
+		self.bias = np.zeros((1,self.num_neurons),dtype="float64")
 
-	def forward(self,layer_input):
+	def forwardc(self,layer_input):
 		self.layer_input = layer_input
 		# flatten layer input
 		self.layer_input = layer_input.flatten().reshape(1,-1)
@@ -54,10 +58,11 @@ class fully_connected_layer():
 			self.init_weights(self.layer_input.shape[1])
 
 		self.layer_product = np.dot(self.layer_input,self.weights) + self.bias
+
 		# return output with activation on layer
 		return self.activation(self.layer_product)
 
-	def forward_gpu(self,layer_input):
+	def forward(self,layer_input):
 
 		self.layer_input = layer_input
 		# flatten layer input
@@ -68,17 +73,34 @@ class fully_connected_layer():
 			# initialize weights
 			self.init_weights(self.layer_input.shape[1])
 
-		self.layer_product = np.array(self.output_shape)
+		self.layer_product = np.zeros(self.output_shape)
+
+		self.layer_input = self.layer_input.astype(np.float64)
+		self.weights = self.weights.astype(np.float64)
+		self.layer_product = self.layer_product.astype(np.float64)
 
 		layer_input_gpu = cuda.mem_alloc(self.layer_input.nbytes)
 		weights_gpu = cuda.mem_alloc(self.weights.nbytes)
 		layer_product_gpu = cuda.mem_alloc(self.layer_product.nbytes)
 
+		a_rows = self.layer_input.shape[0]
+		a_cols = self.layer_input.shape[1]
+
+		b_rows = self.weights.shape[0]
+		b_cols = self.weights.shape[1]
+
+		c_rows = a_rows
+		c_cols = b_cols
+
 		# copy matrix to memory
 		cuda.memcpy_htod(layer_input_gpu, self.layer_input)
 		cuda.memcpy_htod(weights_gpu, self.weights)
 		# TODO add bias
-		matmul(ni, a_gpu, b_gpu, c_gpu, block=(BLOCK_SIZE,BLOCK_SIZE,1), grid=1)
+		self.matmul(layer_input_gpu, weights_gpu,layer_product_gpu,np.int32(a_rows),np.int32(a_cols),np.int32(b_rows),np.int32(b_cols),np.int32(c_rows),np.int32(c_cols),block=(64,64,1), grid=(1,1))
+
+		cuda.memcpy_dtoh(self.layer_product, layer_product_gpu)
+		#print(self.layer_product)
+		self.layer_product += self.bias
 		# return output with activation on layer
 		return self.activation(self.layer_product)
 
@@ -97,7 +119,7 @@ class fully_connected_layer():
 		# update weights: learning rate * derivative of loss with respect to weights
 		# weight regularization
 		dw += self.weights * 1e-3
-		self.weights += -self.learning_rate*dw 
+		self.weights += -self.learning_rate*dw
 		self.bias += -self.learning_rate*db
 
 		return delta.reshape(self.incoming_shape)

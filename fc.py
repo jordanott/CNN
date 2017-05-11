@@ -7,7 +7,7 @@ import numpy as np
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
+import time
 fc = net()
 # height,width,depth
 fc.add_layer('input',shape=(2,),batch=128)
@@ -29,7 +29,7 @@ X = np.zeros((steps,2))
 counter = 0
 theta = np.arange(0,2*3.14,2*3.14/50000)
 
-for i in range(2): 
+for i in range(2):
     for t in theta:
         X_ = h + r*math.cos(t) + np.random.randn()
         Y_ = k - r*math.sin(t) + np.random.randn()
@@ -48,7 +48,7 @@ X = c[:, :X.size//len(X)].reshape(X.shape)
 Y = c[:, X.size//len(X):].reshape(Y.shape)
 
 accuracy = 0
-
+s = time.time()
 for _ in range(2):
 	for i in range(0,len(X)):
 		predictions = fc.forward(X[i])
@@ -58,14 +58,14 @@ for _ in range(2):
 		gradient = fc.cross_entropy_gradient(predictions,Y[i])
 		#loss = fc.get_cost(predictions,y[i])
 		fc.backward(gradient)
-
-
+e = time.time()
+print(e-s)
 for i in range(0,len(X)):
 	predictions = fc.forward(X[i])
 	#print "predictions", predictions
 	#print predictions
 	index = np.argmax(predictions)
-	
+
 	#print index
 	if Y[i][index] == 1:
 		accuracy += 1
@@ -86,7 +86,7 @@ new_y = yy.ravel()
 
 counter = 0
 Z = np.zeros((new_x.shape[0],2))
-for ix in range(len(new_x)): 
+for ix in range(len(new_x)):
     Z[counter] = fc.forward(np.array([new_x[ix],new_y[ix]]).reshape(2,1))
     counter += 1
 
@@ -100,4 +100,3 @@ plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral, alpha=0.8)
 plt.scatter(X[::200,0],X[::200,1],c=labels[::200],s=40,cmap=plt.cm.Spectral)
 
 plt.show()
-	

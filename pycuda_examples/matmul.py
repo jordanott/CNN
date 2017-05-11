@@ -10,7 +10,7 @@ BLOCK_SIZE = 16
 n = 4
 ni = np.int32(n)
 
-# matrix A 
+# matrix A
 a = np.random.randn(2, 3)
 a = np.arange(6).reshape((2,3))
 a = a.astype(np.float32)
@@ -57,5 +57,9 @@ cuda.memcpy_dtoh(c, c_gpu)
 
 print np.linalg.norm(c - np.dot(a,b))
 print c
+start = time.time()
+d = np.dot(a,b)
+end = time.time()
+print "Time: %.5f s"%(end-start)
 print np.dot(a,b)
 print c - np.dot(a,b)
