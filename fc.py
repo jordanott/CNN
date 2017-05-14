@@ -6,6 +6,7 @@ import numpy as np
 
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.datasets.samples_generator import make_blobs
 import math
 import time
 fc = net()
@@ -42,6 +43,18 @@ for i in range(2):
 # plt.scatter(X[:,0],X[:,1],c=labels,s=40,cmap=plt.cm.Spectral)
 # plt.show()
 
+# Another dataset
+centers = [[2,2],[5,5]]
+
+# X is an array of data pts
+# y is the label for each data pt
+# can be adjusted to make any number of blobs
+'''
+X,y = make_blobs(n_samples=10000,n_features=2,centers=centers,cluster_std=.5,center_box=(1,10.0),shuffle=True,random_state=0)
+
+plt.scatter(X[:,0],X[:,1])
+plt.show()
+'''
 c = np.c_[X.reshape(len(X), -1), Y.reshape(len(Y), -1)]
 
 X = c[:, :X.size//len(X)].reshape(X.shape)
