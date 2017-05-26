@@ -42,10 +42,15 @@ for i in range(2):
 # plt.scatter(X[:,0],X[:,1],c=labels,s=40,cmap=plt.cm.Spectral)
 # plt.show()
 
+
 c = np.c_[X.reshape(len(X), -1), Y.reshape(len(Y), -1)]
 
 X = c[:, :X.size//len(X)].reshape(X.shape)
 Y = c[:, X.size//len(X):].reshape(Y.shape)
+
+X,y = make_blobs(n_samples=10000,n_features=2,centers=centers,cluster_std=.5,center_box=(1,10.0),shuffle=True,random_state=0)
+plt.scatter(X[:,0],X[:,1])
+plt.show()
 
 accuracy = 0
 s = time.time()
