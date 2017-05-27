@@ -47,7 +47,7 @@ class fully_connected_layer():
 		self.weights = 0.01*np.random.randn(previous,self.num_neurons) #scale=2/float(previous)
 		self.bias = np.zeros((1,self.num_neurons),dtype="float64")
 
-	def forwardc(self,layer_input):
+	def forward(self,layer_input):
 		self.layer_input = layer_input
 		# flatten layer input
 		self.layer_input = layer_input.flatten().reshape(1,-1)
@@ -62,7 +62,7 @@ class fully_connected_layer():
 		# return output with activation on layer
 		return self.activation(self.layer_product)
 
-	def forward(self,layer_input):
+	def forward_gpu(self,layer_input):
 
 		self.layer_input = layer_input
 		# flatten layer input
