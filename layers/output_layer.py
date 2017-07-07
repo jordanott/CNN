@@ -27,7 +27,7 @@ class output_layer():
 
 
 	def get_output_shape(self):
-		# output shape is 
+		# output shape is
 		return (1,self.num_neurons)
 
 	def init_weights(self,previous):
@@ -67,7 +67,7 @@ class output_layer():
 		# weight regularization
 		dw += self.weights * 1e-3
 		# print "dw", dw
-		self.weights += -self.learning_rate*dw 
+		self.weights += -self.learning_rate*dw
 		self.bias += -self.learning_rate*db
 
 		return delta.reshape(self.incoming_shape)
